@@ -54,6 +54,7 @@ const createOrder = asyncHandler(async (req, res) => {
   const totalPrice = itemsPrice + shippingPrice;
 
   const order = await Order.create({
+    user: req.user?._id || null,
     orderItems: verifiedItems,
     shippingAddress,
     paymentMethod: paymentMethod || "COD",

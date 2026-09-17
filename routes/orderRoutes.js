@@ -5,7 +5,7 @@ import {
   getOrders,
   updateOrderStatus,
 } from "../controllers/orderController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect , attachUserIfPresent } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -13,5 +13,6 @@ router.post("/", createOrder); // public checkout (COD)
 router.get("/", protect, getOrders); // admin: list all orders
 router.get("/:id", protect, getOrderById);
 router.put("/:id/status", protect, updateOrderStatus);
+router.post("/", attachUserIfPresent, createOrder); 
 
 export default router;
