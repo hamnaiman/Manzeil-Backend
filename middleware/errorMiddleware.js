@@ -12,8 +12,13 @@ const notFound = (req, res, next) => {
  * inside an asyncHandler-wrapped controller lands here.
  */
 const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode = err.status || (res.statusCode === 200 ? 500 : res.statusCode);
   let message = err.message;
+
+  if (err.name === "MulterError") {
+    statusCode = 400;
+    message = err.code === "LIMIT_FILE_SIZE" ? "Uploaded file exceeds the allowed size" : "Invalid upload: " + err.message;
+  }
 
   // Mongoose bad ObjectId
   if (err.name === "CastError" && err.kind === "ObjectId") {

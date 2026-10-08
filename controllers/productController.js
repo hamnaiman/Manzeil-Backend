@@ -1,3 +1,4 @@
+import { pageNumber } from "../utils/contentValidation.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import Product from "../models/Product.js";
 import { cloudinary } from "../config/cloudinary.js";
@@ -8,7 +9,7 @@ import { cloudinary } from "../config/cloudinary.js";
  * @access  Private/Admin
  */
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, brand, description, category, price, discountPrice, sizeMl, stock, isFeatured } = req.body;
+  const { name, brand, description, category, price, discountPrice, sizeMl, stock, isFeatured, isActive } = req.body;
 
   if (!name || !description || !category || !price) {
     res.status(400);
@@ -36,6 +37,7 @@ const createProduct = asyncHandler(async (req, res) => {
     sizeMl,
     stock: stock || 0,
     isFeatured: isFeatured === "true" || isFeatured === true,
+    isActive: isActive !== false && isActive !== "false",
     images,
   });
 
@@ -58,7 +60,8 @@ const getProducts = asyncHandler(async (req, res) => {
   }
 
   if (search) {
-    filter.$text = { $search: search };
+        const escaped = String(search).slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    filter.name = { $regex: escaped, $options: "i" };
   }
 
   if (minPrice || maxPrice) {
@@ -71,11 +74,12 @@ const getProducts = asyncHandler(async (req, res) => {
     priceAsc: { price: 1 },
     priceDesc: { price: -1 },
     newest: { createdAt: -1 },
+    featured: { isFeatured: -1, createdAt: -1 },
   };
   const sortOption = sortMap[sort] || { createdAt: -1 };
 
-  const pageNum = Math.max(Number(page), 1);
-  const limitNum = Math.min(Number(limit), 50);
+  const pageNum = pageNumber(page);
+  const limitNum = pageNumber(limit, 12, 50);
   const skip = (pageNum - 1) * limitNum;
 
   const [products, total] = await Promise.all([
