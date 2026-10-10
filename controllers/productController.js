@@ -1,3 +1,4 @@
+import { retainedImages } from "../utils/productImages.js";
 import { pageNumber } from "../utils/contentValidation.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import Product from "../models/Product.js";
@@ -145,13 +146,14 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
   });
 
-  // Append newly uploaded images, if any
+  product.images = retainedImages(product.images, req.body.retainedImages);
+  // New uploads can replace the cover without removing the gallery.
   if (req.files && req.files.length > 0) {
     const newImages = req.files.map((file) => ({
       url: file.path,
       publicId: file.filename,
     }));
-    product.images.push(...newImages);
+    product.images = req.body.newImagesFirst === "true" ? [...newImages, ...product.images] : [...product.images, ...newImages];
   }
 
   const updated = await product.save();

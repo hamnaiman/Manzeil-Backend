@@ -1,3 +1,4 @@
+import upload from "../middleware/upload.js";
 import express from "express";
 import SiteContent from "../models/SiteContent.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -17,5 +18,14 @@ router.put("/", protect, asyncHandler(async (req, res) => {
   if (req.body.email !== undefined) fields.email = emailField(req.body.email);
   const content = await SiteContent.findOneAndUpdate({ key: "storefront" }, { $set: fields }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
   res.json({ success: true, data: content });
+}));
+const mediaSlots = new Set(["logo","femaleEdit","maleEdit", ...["obsession","business-elegance","serene"].flatMap(key => [key+"Bottle",key+"Decor",key+"Post"])]);
+router.put("/media/:slot", protect, (req,res,next) => {
+  if (!mediaSlots.has(req.params.slot)) return res.status(400).json({message:"Unknown image slot"});
+  next();
+}, upload.single("image"), asyncHandler(async (req,res) => {
+  if (!req.file) return res.status(400).json({message:"Choose an image"});
+  const content = await SiteContent.findOneAndUpdate({key:"storefront"}, {$set:{["media."+req.params.slot]:req.file.path}}, {new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
+  res.json({success:true,data:content});
 }));
 export default router;

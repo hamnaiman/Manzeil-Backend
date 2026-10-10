@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const schema = new mongoose.Schema({
+  media: { type: Map, of: String, default: {} },
   key: { type: String, default: "storefront", unique: true },
   storyTitle: { type: String, maxlength: 140, default: "Some memories begin with a scent." },
   storyText: { type: String, maxlength: 3000, default: "A familiar place. A favourite person. A moment you wish would last. Fragrance is a beautiful way to carry a little of what you love, wherever you go." },
