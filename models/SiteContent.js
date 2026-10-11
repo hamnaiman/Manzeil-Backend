@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const schema = new mongoose.Schema({
+  collectionHeroes: { type: Map, of: new mongoose.Schema({title:{type:String,maxlength:100},intro:{type:String,maxlength:500}},{_id:false}), default:{} },
   media: { type: Map, of: String, default: {} },
   key: { type: String, default: "storefront", unique: true },
   storyTitle: { type: String, maxlength: 140, default: "Some memories begin with a scent." },

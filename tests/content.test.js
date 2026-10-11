@@ -163,3 +163,19 @@ test("product API preserves category filtering and bounds malformed pagination",
   assert.equal(catalogLimit, 12);
   assert.equal(catalogFilter.name.$regex, "\\[");
 });
+
+test("collection catalog applies price and stock filters through HTTP",async()=>{
+ const result=await request("/products?category=male&minPrice=0&maxPrice=5000&inStock=true&page=2");
+ assert.equal(result.status,200);
+ assert.equal(catalogFilter.category,"male");
+ assert.deepEqual(catalogFilter.price,{$gte:0,$lte:5000});
+ assert.deepEqual(catalogFilter.stock,{$gt:0});
+ assert.equal(catalogPage,12);
+ assert.equal((await request("/products?minPrice=bad")).status,400);
+});
+test("collection content rejects unauthenticated and malformed changes",async()=>{
+ assert.equal((await request("/content","PUT",{collectionHeroes:{"for-her":{title:"New",intro:"New intro"}}})).status,401);
+ assert.equal((await request("/content","PUT",{collectionHeroes:{"wrong":{title:"New",intro:"New intro"}}},true)).status,400);
+ assert.equal((await request("/content/media/for-herHero","PUT")).status,401);
+ assert.equal((await request("/content/media/wrongHero","PUT",undefined,true)).status,400);
+});

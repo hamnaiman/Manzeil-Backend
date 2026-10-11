@@ -1,3 +1,4 @@
+import { catalogFilters } from "../utils/collectionValidation.js";
 import { retainedImages } from "../utils/productImages.js";
 import { pageNumber } from "../utils/contentValidation.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -54,7 +55,7 @@ const createProduct = asyncHandler(async (req, res) => {
 const getProducts = asyncHandler(async (req, res) => {
   const { category, search, minPrice, maxPrice, page = 1, limit = 12, sort } = req.query;
 
-  const filter = { isActive: true };
+  const filter = { isActive: true, ...catalogFilters(req.query) };
 
   if (category && ["male", "female", "unisex"].includes(category)) {
     filter.category = category;
@@ -65,11 +66,7 @@ const getProducts = asyncHandler(async (req, res) => {
     filter.name = { $regex: escaped, $options: "i" };
   }
 
-  if (minPrice || maxPrice) {
-    filter.price = {};
-    if (minPrice) filter.price.$gte = Number(minPrice);
-    if (maxPrice) filter.price.$lte = Number(maxPrice);
-  }
+
 
   const sortMap = {
     priceAsc: { price: 1 },
