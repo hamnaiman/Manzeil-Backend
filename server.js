@@ -12,6 +12,7 @@ import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import visitRoutes from "./routes/visitRoutes.js";
 
+import blogRoutes from './routes/blogRoutes.js';
 import storyRoutes from "./routes/storyRoutes.js";
 import contentRoutes from "./routes/contentRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
@@ -41,6 +42,7 @@ app.use("/api/visits", visitRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reports", reportRoutes);
 
+app.use("/api/blog", blogRoutes);
 app.use("/api/stories", storyRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/contact", contactRoutes);
