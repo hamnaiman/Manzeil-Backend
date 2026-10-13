@@ -4,6 +4,8 @@ const schema = new mongoose.Schema({
   email: { type: String, required: true, trim: true, maxlength: 254 },
   subject: { type: String, required: true, trim: true, maxlength: 150 },
   message: { type: String, required: true, trim: true, maxlength: 4000 },
+  kind: { type: String, enum: ["message", "feedback"], default: "message" },
+  rating: { type: Number, min: 1, max: 5 },
   status: { type: String, enum: ["new", "read", "resolved"], default: "new" },
 }, { timestamps: true });
 schema.index({ createdAt: -1 });

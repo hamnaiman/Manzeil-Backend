@@ -3,6 +3,7 @@ import ContactMessage from "../models/ContactMessage.js";
 import { protect } from "../middleware/authMiddleware.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { fail, textField, emailField, pageNumber } from "../utils/contentValidation.js";
+import { feedbackFields } from '../utils/contactFeedback.js';
 const router = express.Router();
 // Bounded, per-process limit for the public contact form.
 const attempts = new Map();
@@ -17,6 +18,7 @@ router.post("/", (req, res, next) => {
   next();
 }, asyncHandler(async (req, res) => {
   const fields = {
+    ...feedbackFields(req.body),
     name: textField(req.body.name, "Name", 100, true),
     email: emailField(req.body.email, true),
     subject: textField(req.body.subject, "Subject", 150, true),
@@ -30,6 +32,8 @@ router.get("/", asyncHandler(async (req, res) => {
   const page = pageNumber(req.query.page);
   const limit = 20;
   const filter = ["new", "read", "resolved"].includes(req.query.status) ? { status: req.query.status } : {};
+  if (req.query.kind === 'feedback') filter.kind = 'feedback';
+  else if (req.query.kind === 'message') filter.kind = { $ne: 'feedback' };
   const [data, total] = await Promise.all([
     ContactMessage.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
     ContactMessage.countDocuments(filter),
