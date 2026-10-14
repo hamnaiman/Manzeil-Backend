@@ -1,4 +1,6 @@
 import { collectionFields, collectionKeys } from "../utils/collectionValidation.js";
+import {visualizerFields,moodKeys} from '../utils/visualizerValidation.js';
+import {scentProfileFields} from '../utils/scentProfileValidation.js';
 import upload from "../middleware/upload.js";
 import express from "express";
 import SiteContent from "../models/SiteContent.js";
@@ -12,6 +14,9 @@ router.get("/", asyncHandler(async (req, res) => {
 }));
 router.put("/", protect, asyncHandler(async (req, res) => {
   const fields = req.body.collectionHeroes === undefined ? {} : collectionFields(req.body.collectionHeroes);
+  if (req.body.scentVisualizer !== undefined) Object.assign(fields,visualizerFields(req.body.scentVisualizer));
+  if(req.body.scentProfiles !== undefined) Object.assign(fields,scentProfileFields(req.body.scentProfiles));
+  if(req.body.scentTestMode!==undefined){if(typeof req.body.scentTestMode!=='boolean')return res.status(400).json({message:'Invalid test mode'});fields.scentTestMode=req.body.scentTestMode;}
   const limits = { storyTitle: 140, storyText: 3000, contactTitle: 140, contactIntro: 1000, phone: 60, address: 500, hours: 200 };
   for (const [key, max] of Object.entries(limits)) {
     if (req.body[key] !== undefined) fields[key] = textField(req.body[key], key, max, ["storyTitle", "storyText", "contactTitle"].includes(key));
@@ -20,7 +25,7 @@ router.put("/", protect, asyncHandler(async (req, res) => {
   const content = await SiteContent.findOneAndUpdate({ key: "storefront" }, { $set: fields }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
   res.json({ success: true, data: content });
 }));
-const mediaSlots = new Set([...collectionKeys.map(key=>key+"Hero"),"logo","femaleEdit","maleEdit", ...["obsession","business-elegance","serene"].flatMap(key => [key+"Bottle",key+"Decor",key+"Post"])]);
+const mediaSlots = new Set([...moodKeys.flatMap(key=>["visualizer-"+key+"Bottle","visualizer-"+key+"Decor"]),...collectionKeys.map(key=>key+"Hero"),"logo","femaleEdit","maleEdit", ...["obsession","business-elegance","serene"].flatMap(key => [key+"Bottle",key+"Decor",key+"Post"])]);
 router.put("/media/:slot", protect, (req,res,next) => {
   if (!mediaSlots.has(req.params.slot)) return res.status(400).json({message:"Unknown image slot"});
   next();

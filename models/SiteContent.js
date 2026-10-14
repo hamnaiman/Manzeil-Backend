@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 const schema = new mongoose.Schema({
+  scentTestMode:{type:Boolean,default:false},
+  scentTestProfiles:{type:Map,of:new mongoose.Schema({notes:[String],intensity:String,occasions:[String]},{_id:false}),default:{}},
+  scentProfiles:{type:Map,of:new mongoose.Schema({notes:[String],intensity:{type:String,enum:['','light','balanced','rich'],default:''},occasions:[String]},{_id:false}),default:{}},
+  scentVisualizer: {type:Map,of:new mongoose.Schema({title:{type:String,maxlength:100},description:{type:String,maxlength:400},notes:{type:String,maxlength:180},productId:{type:String,maxlength:24},productIds:{type:[String],default:undefined},bottle:{type:String,enum:['obsession','serene','business-elegance']}},{_id:false}),default:{}},
   collectionHeroes: { type: Map, of: new mongoose.Schema({title:{type:String,maxlength:100},intro:{type:String,maxlength:500}},{_id:false}), default:{} },
   media: { type: Map, of: String, default: {} },
   key: { type: String, default: "storefront", unique: true },

@@ -14,8 +14,8 @@ import visitRoutes from "./routes/visitRoutes.js";
 
 import reviewRoutes from './routes/reviewRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
-import storyRoutes from "./routes/storyRoutes.js";
 import contentRoutes from "./routes/contentRoutes.js";
+import scentDemandRoutes from './routes/scentDemandRoutes.js';
 import contactRoutes from "./routes/contactRoutes.js";
 dotenv.config();
 connectDB();
@@ -45,8 +45,8 @@ app.use("/api/reports", reportRoutes);
 
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/blog", blogRoutes);
-app.use("/api/stories", storyRoutes);
 app.use("/api/content", contentRoutes);
+app.use("/api/scent-demands", scentDemandRoutes);
 app.use("/api/contact", contactRoutes);
 // Error handling (must be last)
 app.use(notFound);
