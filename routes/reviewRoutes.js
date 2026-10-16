@@ -8,11 +8,13 @@ import asyncHandler from '../utils/asyncHandler.js';
 import {verifiedPurchase} from '../utils/reviewVerification.js';
 const router=express.Router();
 function bad(message){const e=new Error(message);e.status=400;throw e;}
-async function list(admin){
- const rows=await Review.find(admin?{}:{published:true}).sort({createdAt:-1}).limit(100).populate('product','name images image isActive').populate('order','orderStatus orderItems').lean();
+async function list(admin,productId){
+ const filter=admin?{}:{published:true};
+ if(productId){if(!mongoose.isValidObjectId(productId))bad("Invalid perfume ID.");filter.product=productId;}
+ const rows=await Review.find(filter).sort({createdAt:-1}).limit(100).populate('product','name images image isActive').populate('order','orderStatus orderItems').lean();
  return rows.filter(r=>admin||(r.product && r.product.isActive!==false)).map(r=>({ _id:r._id,name:r.name,body:r.body,rating:r.rating,published:r.published,product:r.product?{_id:r.product._id,name:r.product.name,images:r.product.images?.map(image=>({url:image.url}))}:null,verified:verifiedPurchase(r.order,r.product?._id),...(admin?{orderId:r.order?._id||''}:{}) }));
 }
-router.get('/',asyncHandler(async(req,res)=>res.json({data:await list(false)})));
+router.get('/',asyncHandler(async(req,res)=>res.json({data:await list(false,req.query.product)})));
 router.use(protect);
 router.get('/admin',asyncHandler(async(req,res)=>res.json({data:await list(true)})));
 async function save(req,res){

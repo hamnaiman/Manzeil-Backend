@@ -1,3 +1,4 @@
+import { productScentFields } from '../utils/productNotes.js';
 import { catalogFilters } from "../utils/collectionValidation.js";
 import { retainedImages } from "../utils/productImages.js";
 import { pageNumber } from "../utils/contentValidation.js";
@@ -30,6 +31,7 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 
   const product = await Product.create({
+    ...productScentFields(req.body),
     name,
     brand,
     description,
@@ -136,6 +138,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
+  Object.assign(product,productScentFields(req.body));
   const fields = ["name", "brand", "description", "category", "price", "discountPrice", "sizeMl", "stock", "isFeatured", "isActive"];
   fields.forEach((field) => {
     if (req.body[field] !== undefined) {

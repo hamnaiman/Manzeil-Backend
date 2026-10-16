@@ -24,6 +24,8 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Product description is required"],
     },
+    notes: { type: [String], default: undefined },
+    ingredients: { type: String, maxlength: 2000, default: "" },
     category: {
       type: String,
       required: [true, "Category is required"],
